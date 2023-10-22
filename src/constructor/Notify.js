@@ -1,10 +1,11 @@
 const EventEmitter = require("events");
 const Parser = require("rss-parser");
 const https = require("https");
-const { QuickDB } = require("quick.db");
+const path = require("path");
+const Database = require("better-sqlite3");
 
 const parser = new Parser();
-const db = new QuickDB();
+const db = new Database(path.join(__dirname, "..", "notify.sqlite"));
 
 class Notify extends EventEmitter {
   /**
@@ -61,22 +62,35 @@ class Notify extends EventEmitter {
         "You must specify the id of the channel to create a listener"
       );
 
+    const tableName = `video_${options.channelId}`; // video-${options.channelId}
+
+    const createTableSQL = `
+      CREATE TABLE IF NOT EXISTS ${tableName} (
+          ID TEXT,
+          Latest TEXT
+        )
+      `;
+    db.exec(createTableSQL);
+
     this.emit("create", { instance: this, channelId: options.channelId });
     const listen = setInterval(async () => {
-      let setups = await db.get(`video-${options.channelId}`);
-
+      const query = db.prepare(`SELECT * FROM ${tableName}`);
+      let setups = query.all()[0];
       if (!setups) {
         const videoDBData = await parser.parseURL(
           `https://www.youtube.com/feeds/videos.xml?channel_id=${options.channelId}`
         );
 
-        await db.set(`video-${options.channelId}`, {
-          ID: options.channelId,
-          Latest: [videoDBData.id],
-        });
+        const delQuery = db.prepare(`DELETE FROM ${tableName}`);
+        delQuery.run();
+
+        const insertData = db.prepare(
+          `INSERT OR REPLACE INTO ${tableName} (ID, Latest) VALUES (?, ?)`
+        );
+        insertData.run(options.channelId, videoDBData.items[0].id);
       }
 
-      setups = await db.get(`video-${options.channelId}`);
+      setups = query.all()[0];
 
       const videoData = await parser.parseURL(
         `https://www.youtube.com/feeds/videos.xml?channel_id=${setups.ID}`
@@ -84,17 +98,20 @@ class Notify extends EventEmitter {
       if (!videoData) return;
 
       const { id } = videoData.items[0];
-      if (setups.Latest.includes(id)) return;
-      else {
-        setups.Latest.push(id);
-        await db.set(`video-${options.channelId}`, {
-          ID: setups.ID,
-          Latest: setups.Latest,
-        });
+      if (setups.Latest === id) {
+        return;
+      } else {
+        const delQuery = db.prepare(`DELETE FROM ${tableName}`);
+        delQuery.run();
+
+        const insertData = db.prepare(
+          `INSERT OR REPLACE INTO ${tableName} (ID, Latest) VALUES (?, ?)`
+        );
+        insertData.run(setups.ID, id);
       }
 
       this.emit("newVideo", videoData.items[0]);
-    }, 10000);
+    }, 1000);
 
     this.startedListeners.push({ interval: listen, id: options.channelId });
   }
