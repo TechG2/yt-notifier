@@ -51,7 +51,7 @@ const notify = new Notify();
 The functions that can be used with this package.
 
 ### getChannelId()
-Gets the channel id from url **delete** event.
+Gets the channel id from **url**.
 
 #### Use
 ```javascript
