@@ -5,7 +5,8 @@ An npm package that run codes when a specified channel publishes a video.
 # Summary
 1. [ Installation. ](#installation)
 2. [ Use. ](#usage)
-3. [ Documentation. ](#docs)
+3. [ Change Logs. ](#change)
+4. [ Documentation. ](#docs)
     - [ Inizialization. ](#inizialization)
     - [ Function. ](#functions)
     - [ Events. ](#events)
@@ -36,6 +37,12 @@ notify.on("newVideo", (items) => {
   console.log(items);
 });
 ```
+<a name='change'></a>
+# Change Logs
+## v1.0.0: (last-release)
+* Added ready create, delete and newVideo events.
+* Added Notify constructor.
+* Added getChannelId, createListener and stopListener functions.
 
 <a name='docs'></a>
 # Documentation
