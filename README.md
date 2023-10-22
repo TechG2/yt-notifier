@@ -1,6 +1,6 @@
 # YouTube Notify
 
-An npm package that run codes when a specified channel publishes a video!
+An npm package that run codes when a specified channel publishes a video.
 
 # Installation
 
@@ -26,3 +26,18 @@ notify.on("newVideo", (items) => {
   console.log(items);
 });
 ```
+
+# Documentation
+<details><summary>Events</summary>
+
+## Ready
+This event is only active when instance is ```ready```.
+
+### Use
+```javascript
+notify.on('ready', (i) => {
+  ...
+});
+```
+
+</details>
