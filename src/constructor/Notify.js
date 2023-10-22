@@ -37,7 +37,7 @@ class Notify extends EventEmitter {
             data += chunk;
           });
           res.on("end", () => {
-            const arr = data.split("channel_id=");
+            const arr = data.split("channel_ids=");
             const channelId = arr[1].slice(0, 24);
             resolve(channelId);
           });
