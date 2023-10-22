@@ -1,28 +1,28 @@
 # YouTube Notify
-An npm package that controls when a specified channel publishes a video!
+
+An npm package that run codes when a specified channel publishes a video!
 
 # Installation
-``` 
-npm install yt-notify
+
+```
+npm install yt-notifier
 ```
 
 # Use
+
 ```javascript
-const { Notify } = require('yt-notify')
+const { Notify } = require("yt-notifier");
 const notify = new Notify();
 
-notify.on('ready', async () => {
-  const id = notify.getChannelId('https://www.youtube.com/@example') // Youtube channel url
+notify.on("ready", async () => {
+  const id = notify.getChannelId("https://www.youtube.com/@example"); // Youtube channel url
 
   // Create the listener
-  notify.createListener({channelId: id});
+  notify.createListener({ channelId: id });
 });
 
 // Event for when the video is published
-notify.on('newVideo', items => {
+notify.on("newVideo", (items) => {
   console.log(items);
 });
 ```
-
-#Wiki
-...
