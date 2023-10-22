@@ -6,6 +6,9 @@ An npm package that run codes when a specified channel publishes a video.
 1. [ Installation. ](#installation)
 2. [ Use. ](#usage)
 3. [ Documentation. ](#docs)
+    - [ Inizialization. ](#inizialization)
+    - [ Function. ](#functions)
+    - [ Events. ](#events)
 
 <a name='installation'></a>
 # Installation
@@ -36,12 +39,14 @@ notify.on("newVideo", (items) => {
 
 <a name='docs'></a>
 # Documentation
+<a name='inizialization'></a>
 ## Inizialization
 ```javascript
 const { Notify } = require("yt-notifier");
 const notify = new Notify(); 
 ```
 
+<a name='functions'></a>
 ## Functions
 The functions that can be used with this package.
 
@@ -74,6 +79,7 @@ Stops a listener and active **delete** event.
 notify.stopListener({channelId: id});
 ```
 
+<a name='events'></a>
 ## Events
 The events that can be actived.
 
