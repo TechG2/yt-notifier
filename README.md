@@ -6,14 +6,12 @@ An npm package that run codes when a specified channel publishes a video.
 
 1. [ Installation. ](#installation)
 2. [ Use. ](#usage)
-   <<<<<<< HEAD
 3. [ Documentation. ](#docs)
    - [ Inizialization. ](#inizialization)
    - [ Function. ](#functions)
-   - # [ Events. ](#events)
+   - [ Events. ](#events)
 4. [ Change Logs. ](#change)
 5. [ Documentation. ](#docs) - [ Inizialization. ](#inizialization) - [ Function. ](#functions) - [ Events. ](#events)
-   > > > > > > > 6be04fabfc5e5dae3b9e10a7c0f40453bcfff7e2
 
 <a name='installation'></a>
 
