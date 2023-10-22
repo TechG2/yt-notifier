@@ -2,12 +2,19 @@
 
 An npm package that run codes when a specified channel publishes a video.
 
+# Summary
+1. [ Installation. ](#installation)
+2. [ Use. ](#usage)
+3. [ Documentation. ](#docs)
+
+<a name='installation'></a>
 # Installation
 
 ```
 npm install yt-notifier
 ```
 
+<a name='usage'></a>
 # Use
 
 ```javascript
@@ -15,7 +22,7 @@ const { Notify } = require("yt-notifier");
 const notify = new Notify();
 
 notify.on("ready", async () => {
-  const id = notify.getChannelId("https://www.youtube.com/@example"); // Youtube channel url
+  const id = await notify.getChannelId("https://www.youtube.com/@example"); // Youtube channel url
 
   // Create the listener
   notify.createListener({ channelId: id });
@@ -27,17 +34,179 @@ notify.on("newVideo", (items) => {
 });
 ```
 
+<a name='docs'></a>
 # Documentation
-<details><summary>Events</summary>
+## Inizialization
+```javascript
+const { Notify } = require("yt-notifier");
+const notify = new Notify(); 
+```
 
-## Ready
-This event is only active when instance is ```ready```.
+## Functions
+The functions that can be used with this package.
+
+### getChannelId()
+Gets the channel id from url **delete** event.
+
+#### Use
+```javascript
+const channelId = await notify.getChannelId("https://www.youtube.com/@example");
+```
+
+### Returns
+```
+{channelId}
+```
+
+### createListener()
+Creates a listener and active **create**, when the listener is create, and **newVideo**, when the specified channel upload a video, events.
+
+#### Use
+```javascript
+notify.createListener({channelId: id});
+```
+
+### stopListener()
+Stops a listener and active **delete** event.
+
+#### Use
+```javascript
+notify.stopListener({channelId: id});
+```
+
+## Events
+The events that can be actived.
+
+---
+<details><summary>Ready</summary>
+
+---
+This event is only active when instance is **ready**.
 
 ### Use
 ```javascript
-notify.on('ready', (i) => {
+notify.on('ready', () => {
   ...
 });
 ```
 
+### Returns
+```
+null
+```
+
+### Example
+```javascript
+const { Notify } = require('yt-notifier');
+const notify = new Notify();
+
+notify.on('ready', async (i) => {
+  console.log(i);
+});
+```
+
 </details>
+
+---
+<details><summary>Create</summary>
+
+---
+This event is activated when a new listener is **created**.
+
+### Use
+```javascript
+notify.on('create', (n) => {
+  ...
+});
+```
+
+### Returns
+```
+{n.channelId}
+```
+
+### Exaple
+```javascript
+const { Notify } = require('yt-notifier');
+const notify = new Notify();
+
+notify.createListener({ channelId: id });
+
+...
+
+notify.on('create', (n) => {
+  console.log(n.channelId);
+});
+```
+
+</details>
+
+---
+<details><summary>Delete</summary>
+
+---
+This event is activated when a listener is **deleted**.
+
+### Use
+```javascript
+notify.on('delete', (n) => {
+  ...
+});
+```
+
+### Returns
+```
+{n.channelId}
+```
+
+### Exaple
+```javascript
+const { Notify } = require('yt-notifier');
+const notify = new Notify();
+
+notify.stopListener({ channelId: id });
+
+...
+
+notify.on('delete', (n) => {
+  console.log(n.channelId);
+});
+```
+
+</details>
+
+---
+<details><summary>newVideo</summary>
+
+---
+This event is activated when a cahnnel publish a **new video**.
+
+### Use
+```javascript
+notify.on('newVideo', (items) => {
+  ...
+});
+```
+
+### Returns
+```
+{items}
+```
+
+### Exaple
+```javascript
+const { Notify } = require('yt-notifier');
+const notify = new Notify();
+
+notify.createListener({ channelId: id });
+
+...
+
+notify.on('newVideo', (items) => {
+  console.log(items);
+});
+```
+
+</details>
+
+---
