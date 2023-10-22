@@ -72,7 +72,7 @@ class Notify extends EventEmitter {
 
         await db.set(`video-${options.channelId}`, {
           ID: options.channelId,
-          Latest: [],
+          Latest: [videoDBData.id],
         });
       }
 
