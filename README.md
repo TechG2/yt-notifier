@@ -5,13 +5,14 @@ An npm package that run codes when a specified channel publishes a video.
 # Summary
 
 1. [ Installation. ](#installation)
-2. [ Use. ](#usage)
-3. [ Documentation. ](#docs)
+2. [ Use. ](#use)
+3. [ Change Logs. ](#change)
+4. [ Documentation. ](#documentation)
    - [ Inizialization. ](#inizialization)
    - [ Function. ](#functions)
    - [ Events. ](#events)
-4. [ Change Logs. ](#change)
-5. [ Documentation. ](#docs) - [ Inizialization. ](#inizialization) - [ Function. ](#functions) - [ Events. ](#events)
+5. [ Extensions. ](#extensions)
+   - [ Twitch. ](#twitch)
 
 <a name='installation'></a>
 
@@ -21,19 +22,21 @@ An npm package that run codes when a specified channel publishes a video.
 npm install yt-notifier
 ```
 
-<a name='usage'></a>
+<a name='use'></a>
 
 # Use
 
 ```javascript
 const { Notify } = require("yt-notifier");
-const notify = new Notify();
+const notify = new Notify({
+  apiKey: "Your youtube ApiKey",
+});
 
 notify.on("ready", async () => {
   const id = await notify.getChannelId("https://www.youtube.com/@example"); // Youtube channel url
 
   // Create the listener
-  notify.createListener({ channelId: id });
+  await notify.createListener({ channelId: id });
 });
 
 // Event for when the video is published
@@ -46,36 +49,28 @@ notify.on("newVideo", (items) => {
 
 # Change Logs
 
-## v1.0.0: (last-release)
+## v2.0.0: (last-release)
 
-- Added ready create, delete and newVideo events.
-- Added Notify constructor.
-- Added getChannelId, createListener and stopListener functions.
+### General +
 
-<a name='change'></a>
+- Added extension option when creating constructor.
 
-# Change Logs
+### Youtube +
 
-## v1.1.0: (last-release)
+- Added more results than when a video is uploaded (will soon be done with the Twitch extension too).
+- Added apiKey option when creating constructor.
+- Fixed a bug with the newVideo events.
 
-- Fixed a bug with the video upload tracker.
-- Changed the data store system.
+### Twitch +
 
-## Old release:
-
----
-
-<details><summary>v1.0.0</summary>
-
-- Added ready create, delete and newVideo events.
-- Added Notify constructor.
-- Added getChannelId, createListener and stopListener functions.
-
-</details>
+- Added TwitchExtension constructor.
+- Added client id and token option to the constructor.
+- Added createListener() and stopListener() function.
+- Added ready, create, delete, isLive events.
 
 ---
 
-<a name='docs'></a>
+<a name='documentation'></a>
 
 # Documentation
 
@@ -85,7 +80,9 @@ notify.on("newVideo", (items) => {
 
 ```javascript
 const { Notify } = require("yt-notifier");
-const notify = new Notify();
+const notify = new Notify({
+  apiKey: "Your youtube ApiKey",
+});
 ```
 
 <a name='functions'></a>
@@ -107,7 +104,7 @@ const channelId = await notify.getChannelId("https://www.youtube.com/@example");
 ### Returns
 
 ```
-{channelId}
+channelId
 ```
 
 ### createListener()
@@ -117,7 +114,7 @@ Creates a listener and active **create**, when the listener is create, and **new
 #### Use
 
 ```javascript
-notify.createListener({ channelId: id });
+await notify.createListener({ channelId: id });
 ```
 
 ### stopListener()
@@ -127,7 +124,7 @@ Stops a listener and active **delete** event.
 #### Use
 
 ```javascript
-notify.stopListener({ channelId: id });
+await notify.stopListener({ channelId: id });
 ```
 
 <a name='events'></a>
@@ -147,7 +144,7 @@ This event is only active when instance is **ready**.
 ### Use
 
 ```javascript
-notify.on('ready', () => {
+notify.on('ready', (i) => {
   ...
 });
 ```
@@ -155,14 +152,16 @@ notify.on('ready', () => {
 ### Returns
 
 ```
-null
+currentInstance
 ```
 
 ### Example
 
 ```javascript
 const { Notify } = require("yt-notifier");
-const notify = new Notify();
+const notify = new Notify({
+  apiKey: "Your youtube ApiKey",
+});
 
 notify.on("ready", async (i) => {
   console.log(i);
@@ -182,7 +181,7 @@ This event is activated when a new listener is **created**.
 ### Use
 
 ```javascript
-notify.on('create', (n) => {
+notify.on('create', (channelId, id) => {
   ...
 });
 ```
@@ -190,21 +189,21 @@ notify.on('create', (n) => {
 ### Returns
 
 ```
-{n.channelId}
+channelId, currentInstance
 ```
 
-### Exaple
+### Example
 
 ```javascript
 const { Notify } = require('yt-notifier');
-const notify = new Notify();
-
-notify.createListener({ channelId: id });
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey"
+});
 
 ...
 
-notify.on('create', (n) => {
-  console.log(n.channelId);
+notify.on('create', (channelId, i) => {
+  console.log(channelId);
 });
 ```
 
@@ -221,7 +220,7 @@ This event is activated when a listener is **deleted**.
 ### Use
 
 ```javascript
-notify.on('delete', (n) => {
+notify.on('delete', (channelId, i) => {
   ...
 });
 ```
@@ -229,21 +228,21 @@ notify.on('delete', (n) => {
 ### Returns
 
 ```
-{n.channelId}
+channelId, currentInstance
 ```
 
-### Exaple
+### Example
 
 ```javascript
 const { Notify } = require('yt-notifier');
-const notify = new Notify();
-
-notify.stopListener({ channelId: id });
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey"
+});
 
 ...
 
-notify.on('delete', (n) => {
-  console.log(n.channelId);
+notify.on('delete', (channelId, i) => {
+  console.log(channelId);
 });
 ```
 
@@ -268,20 +267,318 @@ notify.on('newVideo', (items) => {
 ### Returns
 
 ```
-{items}
+{
+   id: '{videoId}',
+   title: '{videoTitle}',
+   description: '{videoDescription}',
+   link: '<videoUrl>',
+   releaed: '<releaseDate>',
+   thumbnails: {
+      default: '<thumbnailUrl>',
+      medium: '<thumbnailUrl>',
+      high: '<thumbnailUrl>',
+      standard: '<thumbnailUrl>',
+      maxres: '<thumbnailUrl>',
+   },
+   statistics: {
+      viewCount: '<viewsNumber>',
+      likeCount: '<likeCount>',
+      favoriteCount: '<favoriteCount>',
+      commentCount: '<commentsNumber>'
+   },
+   author: {
+      link: '<channelUrl>',
+      name: '<channelName>',
+      description: '<channelDescription>',
+      avatars: {
+         default: '<avatarUrl>'
+         medium: '<avatarUrl>',
+         high: '<avatarUrl>',
+      },
+      subscribers: '<subscribersCount>',
+      videoCount: '<videoCount>',
+      views: '<viewsNumber>',
+   }
+}
 ```
 
-### Exaple
+### Example
 
 ```javascript
 const { Notify } = require('yt-notifier');
-const notify = new Notify();
-
-notify.createListener({ channelId: id });
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey"
+});
 
 ...
 
 notify.on('newVideo', (items) => {
+  console.log(items);
+});
+```
+
+</details>
+
+---
+
+<a name='extensions'></a>
+
+# Extensions
+
+<a name='twitch'></a>
+
+## Twitch
+
+### Use
+
+```javascript
+const { Notify, TwitchExtension } = require("yt-notify");
+const notify = new Notify({
+  apiKey: "Your youtube ApiKey",
+  extensions: {
+    twitch: new TwitchExtension({
+      clientId: "Twitch client id",
+      token: "Twitch token id",
+    }),
+  },
+});
+const twitch = notify.twitch;
+```
+
+### Function
+
+#### createListener()
+
+Creates a listener and active **create**, when the listener is create, and **newVideo**, when the specified channel upload a video, events.
+
+##### Use
+
+```javascript
+await twitch.createListener({ channel: channelName });
+```
+
+#### stopListener()
+
+Stops a listener and active **delete** event.
+
+##### Use
+
+```javascript
+await twitch.stopListener({ channel: channelName });
+```
+
+### Events
+
+The events that can be actived with this extension.
+
+---
+
+<details><summary>Ready</summary>
+
+---
+
+This event is only active when instance is **ready**.
+
+### Use
+
+```javascript
+twitch.on('ready', (i) => {
+  ...
+});
+```
+
+### Returns
+
+```
+currentInstance
+```
+
+### Example
+
+```javascript
+const { Notify, TwitchExtension } = require("yt-notify");
+const notify = new Notify({
+  apiKey: "Your youtube ApiKey",
+  extensions: {
+    twitch: new TwitchExtension({
+      clientId: "Twitch client id",
+      token: "Twitch token id",
+    }),
+  },
+});
+const twitch = notify.twitch;
+
+twitch.on("ready", async (i) => {
+  console.log(i);
+});
+```
+
+</details>
+
+---
+
+<details><summary>Create</summary>
+
+---
+
+This event is activated when a new listener is **created**.
+
+### Use
+
+```javascript
+twitch.on('create', (channelId, id) => {
+  ...
+});
+```
+
+### Returns
+
+```
+{
+   id: '<channelId>',
+   login: '<channelUsername>',
+   display_name: '<channelName>',
+   broadcaster_type: '<brodcastType>',
+   description: '<channelDescription>',
+   profile_image_url: '<profileImage>',
+   offline_image_url: '<offlineImage>',
+   view_count: <viewCount>,
+   created_at: '<creationTime>'
+},
+currentInstance
+```
+
+### Example
+
+```javascript
+const { Notify, TwitchExtension } = require("yt-notify");
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey",
+   extensions: {
+      twitch: new TwitchExtension({
+         clientId: "Twitch client id",
+         token: "Twitch token id",
+      })
+   }
+});
+const twitch = notify.twitch;
+
+...
+
+twitch.on('create', (streamerInfo, i) => {
+  console.log(streamerInfo);
+});
+```
+
+</details>
+
+---
+
+<details><summary>Delete</summary>
+
+---
+
+This event is activated when a listener is **deleted**.
+
+### Use
+
+```javascript
+twitch.on('delete', (streamerInfo, i) => {
+  ...
+});
+```
+
+### Returns
+
+```
+{
+   id: '<channelId>',
+   login: '<channelUsername>',
+   display_name: '<channelName>',
+   broadcaster_type: '<brodcastType>',
+   description: '<channelDescription>',
+   profile_image_url: '<profileImage>',
+   offline_image_url: '<offlineImage>',
+   view_count: <viewCount>,
+   created_at: '<creationTime>'
+}
+currentInstance
+```
+
+### Example
+
+```javascript
+const { Notify, TwitchExtension } = require("yt-notify");
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey",
+   extensions: {
+      twitch: new TwitchExtension({
+         clientId: "Twitch client id",
+         token: "Twitch token id",
+      })
+   }
+});
+const twitch = notify.twitch;
+
+...
+
+twitch.on('delete', (streamerInfo, i) => {
+  console.log(streamerInfo);
+});
+```
+
+</details>
+
+---
+
+<details><summary>isLive</summary>
+
+---
+
+This event is activated when a streamer start a **new live**.
+
+### Use
+
+```javascript
+twitch.on('isLive', (items) => {
+  ...
+});
+```
+
+### Returns
+
+```
+{
+   id: '<channelId>',
+   login: '<channelUsername>',
+   display_name: '<channelName>',
+   broadcaster_type: '<brodcastType>',
+   description: '<channelDescription>',
+   profile_image_url: '<profileImage>',
+   offline_image_url: '<offlineImage>',
+   view_count: <viewCount>,
+   created_at: '<creationTime>'
+}
+```
+
+### Example
+
+```javascript
+const { Notify, TwitchExtension } = require("yt-notify");
+const notify = new Notify({
+   apiKey: "Your youtube ApiKey",
+   extensions: {
+      twitch: new TwitchExtension({
+         clientId: "Twitch client id",
+         token: "Twitch token id",
+      })
+   }
+});
+const twitch = notify.twitch;
+
+...
+
+twitch.on('isLive', (items) => {
   console.log(items);
 });
 ```
