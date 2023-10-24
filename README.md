@@ -12,10 +12,8 @@ An npm package that run codes when a specified channel publishes a video.
    - [ Function. ](#functions)
    - [ Events. ](#events)
 5. [ Change Logs. ](#change)
-6. [ Documentation. ](#docs)
-   - [ Inizialization. ](#inizialization)
-   - [ Function. ](#functions)
-   - [ Events. ](#events)
+6. [Extensions.](#extensions)
+   - [Twitch.](#twitch).
 
 <a name='installation'></a>
 
