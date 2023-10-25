@@ -53,8 +53,9 @@ notify.on("newVideo", (items) => {
 
 # Change Logs
 
-## v2.0.2: (last-release)
+## v2.0.4: (last-release)
 
+- Added the files for the yarn page.
 - Fixed a problem with the listener.
 
 ---
