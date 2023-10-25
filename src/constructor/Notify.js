@@ -113,7 +113,7 @@ class Notify extends EventEmitter {
         const insertData = db.prepare(
           `INSERT OR REPLACE INTO ${tableName} (ID, Latest) VALUES (?, ?)`
         );
-        insertData.run(options.channelId, null /* videoDBData.items[0].id */);
+        insertData.run(options.channelId, null);
       }
 
       setups = query.all()[0];
@@ -126,7 +126,7 @@ class Notify extends EventEmitter {
       const { id, pubDate } = videoData.items[0];
       const videoDate = new Date(pubDate);
       const currentDate = new Date();
-      currentDate.setMinutes(currentDate.getMinutes() - 20);
+      currentDate.setMinutes(currentDate.getMinutes() - 10);
 
       if (setups.Latest === id || videoDate <= currentDate) {
         return;

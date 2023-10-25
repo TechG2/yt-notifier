@@ -95,7 +95,7 @@ class TwitchExtension extends EventEmitter {
         const insertData = db.prepare(
           `INSERT OR REPLACE INTO ${tableName} (ID, Latest) VALUES (?, ?)`
         );
-        insertData.run(options.channel, null /* streamData.data.data[0].id */);
+        insertData.run(options.channel, null);
       }
 
       setups = query.all()[0];
@@ -112,8 +112,11 @@ class TwitchExtension extends EventEmitter {
       if (!streamCheckData) return;
 
       const { id } = streamCheckData.data.data[0];
+      const startedTime = new Date(streamCheckData.data.data[0].started_at);
+      const currentDate = new Date();
+      currentDate.setMinutes(currentDate.getMinutes() - 5);
 
-      if (setups.Latest === id) {
+      if (setups.Latest === id || startedTime <= currentDate) {
         return;
       } else {
         const delQuery = db.prepare(`DELETE FROM ${tableName}`);
@@ -124,6 +127,11 @@ class TwitchExtension extends EventEmitter {
         );
         insertData.run(setups.ID, id);
       }
+
+      streamCheckData.data.data[0].thumbnail_url =
+        streamCheckData.data.data[0].thumbnail_url
+          .replace("{width}", "1920")
+          .replace("{height}", "1080");
 
       this.emit("isLive", streamCheckData.data.data[0], this);
     }, 1000);

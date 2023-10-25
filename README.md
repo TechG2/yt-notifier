@@ -22,6 +22,10 @@ An npm package that run codes when a specified channel publishes a video.
 npm install yt-notifier
 ```
 
+```
+yarn add yt-notifier
+```
+
 <a name='use'></a>
 
 # Use
@@ -49,24 +53,9 @@ notify.on("newVideo", (items) => {
 
 # Change Logs
 
-## v2.0.0: (last-release)
+## v2.0.2: (last-release)
 
-### General +
-
-- Added extension option when creating constructor.
-
-### Youtube +
-
-- Added more results than when a video is uploaded (will soon be done with the Twitch extension too).
-- Added apiKey option when creating constructor.
-- Fixed a bug with the newVideo events.
-
-### Twitch +
-
-- Added TwitchExtension constructor.
-- Added client id and token option to the constructor.
-- Added createListener() and stopListener() function.
-- Added ready, create, delete, isLive events.
+- Fixed a problem with the listener.
 
 ---
 
@@ -549,15 +538,21 @@ twitch.on('isLive', (items) => {
 
 ```
 {
-   id: '<channelId>',
-   login: '<channelUsername>',
-   display_name: '<channelName>',
-   broadcaster_type: '<brodcastType>',
-   description: '<channelDescription>',
-   profile_image_url: '<profileImage>',
-   offline_image_url: '<offlineImage>',
-   view_count: <viewCount>,
-   created_at: '<creationTime>'
+  id: '<id>',
+  user_id: '<userId>',
+  user_login: '<username>',
+  user_name: '<channelName>',
+  game_id: '<gameId>',
+  game_name: '<gameName>',
+  type: '<type>',
+  title: '<liveTitle>',
+  viewer_count: <viewerCount>,
+  started_at: '<startedTime>',
+  language: '<lenguage>',
+  thumbnail_url: '<thumbnailUrl>',
+  tag_ids: <arrayOfTagsId>,
+  tags: <arrayOfTags>,
+  is_mature: false
 }
 ```
 
