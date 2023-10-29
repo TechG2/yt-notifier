@@ -12,7 +12,7 @@ An npm package that run codes when a specified channel publishes a video.
    - [ Function. ](#functions)
    - [ Events. ](#events)
 5. [Extensions.](#extensions)
-   - [Twitch.](#twitch).
+   - [Twitch.](#twitch)
 
 <a name='installation'></a>
 
@@ -53,10 +53,10 @@ notify.on("newVideo", (items) => {
 
 # Change Logs
 
-## v2.0.4: (last-release)
+## v2.1.0: (last-release)
 
-- Added the files for the yarn page.
-- Fixed a problem with the listener.
+- Added fetchVideo and getVideoId functions.
+- Fixed another bug with the listener.
 
 ---
 
@@ -258,37 +258,39 @@ notify.on('newVideo', (items) => {
 
 ```
 {
-   id: '{videoId}',
-   title: '{videoTitle}',
-   description: '{videoDescription}',
-   link: '<videoUrl>',
-   releaed: '<releaseDate>',
-   thumbnails: {
-      default: '<thumbnailUrl>',
-      medium: '<thumbnailUrl>',
-      high: '<thumbnailUrl>',
-      standard: '<thumbnailUrl>',
-      maxres: '<thumbnailUrl>',
-   },
-   statistics: {
-      viewCount: '<viewsNumber>',
-      likeCount: '<likeCount>',
-      favoriteCount: '<favoriteCount>',
-      commentCount: '<commentsNumber>'
-   },
-   author: {
-      link: '<channelUrl>',
-      name: '<channelName>',
-      description: '<channelDescription>',
-      avatars: {
-         default: '<avatarUrl>'
-         medium: '<avatarUrl>',
-         high: '<avatarUrl>',
-      },
+  id: '{videoId}',
+  title: '{videoTitle}',
+  description: '{videoDescription}',
+  link: '<videoUrl>',
+  releaed: '<releaseDate>',
+  thumbnails: {
+    default: '<thumbnailUrl>',
+    medium: '<thumbnailUrl>',
+    high: '<thumbnailUrl>',
+    standard: '<thumbnailUrl>',
+    maxres: '<thumbnailUrl>',
+  },
+  statistics: {
+    viewCount: '<viewsNumber>',
+    likeCount: '<likeCount>',
+    favoriteCount: '<favoriteCount>',
+    commentCount: '<commentsNumber>'
+  },
+  author: {
+    link: '<channelUrl>',
+    name: '<channelName>',
+    description: '<channelDescription>',
+    avatars: {
+      default: '<avatarUrl>'
+      medium: '<avatarUrl>',
+      high: '<avatarUrl>',
+    },
+    statistics: {
       subscribers: '<subscribersCount>',
       videoCount: '<videoCount>',
       views: '<viewsNumber>',
-   }
+    },
+  },
 }
 ```
 

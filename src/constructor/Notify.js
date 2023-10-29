@@ -22,6 +22,12 @@ class Notify extends EventEmitter {
     super();
     const extensions = [];
     this.startedListeners = [];
+
+    if (!options || !options.apiKey) {
+      throw new Error("Api key missing");
+    }
+    this.key = options.apiKey;
+
     if (options.extensions)
       this.extensions = Object.keys(options.extensions).map(
         (key, index) => options.extensions[key].name
@@ -36,14 +42,108 @@ class Notify extends EventEmitter {
       });
     }
 
-    if (!options.apiKey) {
-      throw new Error("Api key missing");
-    }
-    this.key = options.apiKey;
-
     setImmediate(() => {
       this.emit("ready", this);
     });
+  }
+
+  /**
+   * Gets the videoId.
+   *
+   * @param {String} videoUrl
+   * @return {string}
+   */
+  async getVideoId(videoUrl) {
+    return new Promise((resolve, reject) => {
+      https
+        .get(videoUrl, (res) => {
+          let data = "";
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+          res.on("end", () => {
+            const arr = data.split("video_id=");
+            const channelId = arr[1].slice(0, 11);
+            resolve(channelId);
+          });
+        })
+        .on("error", (e) => {
+          reject(e.message);
+        });
+    });
+  }
+
+  /**
+   * Fetch video info from id.
+   *
+   * @param {Object} options
+   * @param {String} [options.videoId]
+   * @return {string}
+   */
+  async fetchVideo(options) {
+    if (!options || !options.videoId)
+      throw new Error(
+        "You must specify the id of the channel to create a listener"
+      );
+
+    const apiKey = this.key;
+
+    // Get info
+    let fetchVideoInfo = await axios.get(
+      `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&part=snippet&id=${options.videoId}`
+    );
+    fetchVideoInfo = fetchVideoInfo.data.items[0].snippet;
+
+    let statistics = await axios.get(
+      `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${options.videoId}&key=${apiKey}`
+    );
+    statistics = statistics.data.items[0].statistics;
+
+    let authorInfo = await axios.get(
+      `https://www.googleapis.com/youtube/v3/channels?key=${apiKey}&part=snippet,statistics&id=${fetchVideoInfo.channelId}`
+    );
+    authorInfo = authorInfo.data.items[0];
+
+    return {
+      id: options.videoId,
+      title: fetchVideoInfo.title,
+      description: fetchVideoInfo.description,
+      link: `https://www.youtube.com/watch?v=${options.videoId}`,
+      releaed: fetchVideoInfo.publishedAt,
+      thumbnails: {
+        default: fetchVideoInfo.thumbnails.default
+          ? fetchVideoInfo.thumbnails.default.url
+          : null,
+        medium: fetchVideoInfo.thumbnails.medium
+          ? fetchVideoInfo.thumbnails.medium.url
+          : null,
+        high: fetchVideoInfo.thumbnails.high
+          ? fetchVideoInfo.thumbnails.high.url
+          : null,
+        standard: fetchVideoInfo.thumbnails.standard
+          ? fetchVideoInfo.thumbnails.standard.url
+          : null,
+        maxres: fetchVideoInfo.thumbnails.maxres
+          ? fetchVideoInfo.thumbnails.maxres.url
+          : null,
+      },
+      statistics: statistics,
+      author: {
+        link: `https://www.youtube.com/channel/${fetchVideoInfo.channelId}`,
+        name: authorInfo.snippet.title,
+        description: authorInfo.snippet.description,
+        avatars: {
+          default: authorInfo.snippet.thumbnails.default.url,
+          medium: authorInfo.snippet.thumbnails.medium.url,
+          high: authorInfo.snippet.thumbnails.high.url,
+        },
+        statistics: {
+          subscribers: authorInfo.statistics.subscriberCount,
+          videoCount: authorInfo.statistics.videoCount,
+          views: authorInfo.statistics.viewCount,
+        },
+      },
+    };
   }
 
   /**
@@ -173,11 +273,23 @@ class Notify extends EventEmitter {
         link: rawData.link,
         releaed: fetchVideoInfo.publishedAt,
         thumbnails: {
-          default: fetchVideoInfo.thumbnails.default.url,
-          medium: fetchVideoInfo.thumbnails.medium.url,
-          high: fetchVideoInfo.thumbnails.high.url,
-          standard: fetchVideoInfo.thumbnails.standard.url,
-          maxres: fetchVideoInfo.thumbnails.maxres.url,
+          thumbnails: {
+            default: fetchVideoInfo.thumbnails.default
+              ? fetchVideoInfo.thumbnails.default.url
+              : null,
+            medium: fetchVideoInfo.thumbnails.medium
+              ? fetchVideoInfo.thumbnails.medium.url
+              : null,
+            high: fetchVideoInfo.thumbnails.high
+              ? fetchVideoInfo.thumbnails.high.url
+              : null,
+            standard: fetchVideoInfo.thumbnails.standard
+              ? fetchVideoInfo.thumbnails.standard.url
+              : null,
+            maxres: fetchVideoInfo.thumbnails.maxres
+              ? fetchVideoInfo.thumbnails.maxres.url
+              : null,
+          },
         },
         statistics: statistics,
         author: {
@@ -189,9 +301,11 @@ class Notify extends EventEmitter {
             medium: authorInfo.snippet.thumbnails.medium.url,
             high: authorInfo.snippet.thumbnails.high.url,
           },
-          subscribers: authorInfo.statistics.subscriberCount,
-          videoCount: authorInfo.statistics.videoCount,
-          views: authorInfo.statistics.viewCount,
+          statistics: {
+            subscribers: authorInfo.statistics.subscriberCount,
+            videoCount: authorInfo.statistics.videoCount,
+            views: authorInfo.statistics.viewCount,
+          },
         },
       };
 
